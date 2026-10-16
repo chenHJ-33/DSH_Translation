@@ -1,0 +1,7 @@
+# Bundle patch contributed by dsh-translate.
+#
+# One loader entry, no config rows and no `!!js` expressions: a plain insert is
+# the only patch shape a hot-mounting host can activate without a restart.
+- insert:
+    - id: dsh-translate
+      name: 'dsh-translate'

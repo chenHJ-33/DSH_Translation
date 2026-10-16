@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# logs / editor / OS noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# local settings that may hold a real Baidu appid / secret key
+dsh-translate.json
+*.local.json
+.env
+.env.*
