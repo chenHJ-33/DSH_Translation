@@ -13,11 +13,19 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { tmpdir, homedir } from 'node:os'
+import { join, sep } from 'node:path'
 
 const APP_ID = '2024000000000001'
 const SECRET = 'mock-secret-key'
+
+/** Mirrors the host's display folding: home → %USERPROFILE% / ~. */
+function displayPath(file) {
+  const prefix = homedir().endsWith(sep) ? homedir() : `${homedir()}${sep}`
+  if (!file.startsWith(prefix)) return file
+  const rest = file.slice(prefix.length)
+  return process.platform === 'win32' ? `%USERPROFILE%${sep}${rest}` : `~/${rest.split(sep).join('/')}`
+}
 
 let passed = 0
 const failures = []
@@ -178,7 +186,8 @@ check('logger announced readiness', logs.some((line) => line.includes('[dsh-tran
   check('an unconfigured install reports configured:false', payload.config.configured === false)
   check('the secret is never echoed', !('secretKey' in payload.config), Object.keys(payload.config).join(','))
   check('shortcut defaults to Alt+T', payload.config.shortcut === 'Alt+T', payload.config.shortcut)
-  check('configPath points into DSH_HOME', payload.config.configPath === join(home, 'dsh-translate.json'), payload.config.configPath)
+  check('configPath points into DSH_HOME', payload.config.configPath === displayPath(join(home, 'dsh-translate.json')), payload.config.configPath)
+  check('configPath never leaks the account name', !payload.config.configPath.includes(homedir()), payload.config.configPath)
 }
 
 console.log('\ntranslate before configuration')
